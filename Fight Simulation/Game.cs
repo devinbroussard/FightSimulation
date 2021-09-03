@@ -24,7 +24,9 @@ namespace Fight_Simulation
         Monster currentMonsterOne;
         Monster currentMonsterTwo;
         int currentMonsterIndex = 1;
-
+        /// <summary>
+        /// Simulates one turn in the current monster fight
+        /// </summary>
         void Battle()
         {
             //prints stats
@@ -46,15 +48,14 @@ namespace Fight_Simulation
             Console.Clear();
         }
 
-        public void Run()
+        void Start()
         {
-            //created monster one object, and gave its stats
+            //Initializes monsters
             wompus.name = "Wompus";
             wompus.health = 10.0f;
             wompus.attack = 5.0f;
             wompus.defense = 5.0f;
 
-            //Created monster two object, and gave its stats
             thwompus.name = "Thwompus";
             thwompus.health = 20.0f;
             thwompus.attack = 10.0f;
@@ -70,8 +71,17 @@ namespace Fight_Simulation
             unclePhil.defense = 20.0f;
             unclePhil.health = 50.0f;
 
-            Update();
+            //Sets current monsters
+            currentMonsterOne = GetMonster(currentMonsterIndex);
+            currentMonsterIndex++;
+            currentMonsterTwo = GetMonster(currentMonsterIndex);
+        }
 
+        public void Run()
+        {
+            Start();
+            while (!gameOver)
+                Update();
         }
 
         Monster GetMonster(int monsterIndex)
@@ -98,8 +108,13 @@ namespace Fight_Simulation
         {
             Battle();
             UpdateCurrentMonsters();
+            Console.ReadKey(true);
         }
 
+        /// <summary>
+        /// Changes onne of the current fighters to be the next in the if it has died.
+        /// Ends the game if all figthters in the list have been used.
+        /// </summary>
         void UpdateCurrentMonsters()
         {
             //If monsters one dies...
@@ -116,8 +131,10 @@ namespace Fight_Simulation
                 currentMonsterIndex++;
                 currentMonsterTwo = GetMonster(currentMonsterIndex);
             }
+            //if the monster is set to the default monster, or the monster roster is empy...
             if (currentMonsterTwo.name == "None" || currentMonsterOne.name == "None" && currentMonsterIndex >= 4)
             {
+                //..Then make the game over
                 Console.WriteLine("Simulation Over");
                 gameOver = true;
             }    
@@ -132,8 +149,6 @@ namespace Fight_Simulation
                 //prints stats
                 PrintStats(monsterOne);
                 PrintStats(monsterTwo);
-                Console.ReadKey(true);
-                Console.Clear();
 
                 //Monster 1 attacks monster 2
                 float damageTaken = Fight(monsterOne, ref monsterTwo);
