@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Fight_Simulation
 {
+    //struct that creates the Monster type
     public struct Monster
     {
         public string name;
@@ -14,6 +15,7 @@ namespace Fight_Simulation
 
     class Game
     {
+        //initializes monsters and variables
         Monster wompus;
         Monster thwompus;
         Monster backupWompus;
@@ -68,12 +70,17 @@ namespace Fight_Simulation
             unclePhil.defense = 20.0f;
             unclePhil.health = 50.0f;
 
+            Update();
+
         }
 
-        Monster GetMonster (int monsterIndex)
+        Monster GetMonster(int monsterIndex)
         {
             Monster monster;
             monster.name = "None";
+            monster.attack = 1;
+            monster.defense = 1;
+            monster.health = 1;
 
             if (monsterIndex == 1)
                 monster = unclePhil;
@@ -90,10 +97,30 @@ namespace Fight_Simulation
         void Update()
         {
             Battle();
+            UpdateCurrentMonsters();
         }
 
         void UpdateCurrentMonsters()
         {
+            //If monsters one dies...
+            if (currentMonsterOne.health <= 0)
+            {
+                //...sets current monsterOne to next one in roster
+                currentMonsterIndex++;
+                currentMonsterOne = GetMonster(currentMonsterIndex);
+            }
+            //If monster two dies...
+            if (currentMonsterTwo.health <= 0)
+            {
+                //..sets current monsterTwo to the next monster in roster
+                currentMonsterIndex++;
+                currentMonsterTwo = GetMonster(currentMonsterIndex);
+            }
+            if (currentMonsterTwo.name == "None" || currentMonsterOne.name == "None" && currentMonsterIndex >= 4)
+            {
+                Console.WriteLine("Simulation Over");
+                gameOver = true;
+            }    
         }
 
         string StartBattle(ref Monster monsterOne, ref Monster monsterTwo)
