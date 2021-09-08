@@ -20,10 +20,14 @@ namespace Fight_Simulation
         Monster thwompus;
         Monster backupWompus;
         Monster unclePhil;
+
+        //Initializing
         bool gameOver = false;
         Monster currentMonsterOne;
         Monster currentMonsterTwo;
-        int currentMonsterIndex = 1;
+        int currentMonsterIndex = 0;
+        int currentScene = 0;
+
         /// <summary>
         /// Simulates one turn in the current monster fight
         /// </summary>
@@ -32,8 +36,6 @@ namespace Fight_Simulation
             //prints stats
             PrintStats(currentMonsterOne);
             PrintStats(currentMonsterTwo);
-            Console.ReadKey(true);
-            Console.Clear();
 
             //Monster 1 attacks monster 2
             float damageTaken = Fight(currentMonsterOne, ref currentMonsterTwo);
@@ -48,6 +50,49 @@ namespace Fight_Simulation
             Console.Clear();
         }
 
+        /// <summary>
+        /// Function that gets and returns user data
+        /// </summary>
+        /// <param name="description"></param>
+        /// <param name="optionOne"></param>
+        /// <param name="optionTwo"></param>
+        /// <param name="pauseInvalid"></param>Optional argument that calls a ReadKey after invalids on true
+        /// <returns>A number representing the selected choice</returns>
+        int GetInput(string description, string optionOne, string optionTwo, bool pauseInvalid = false)
+        {
+            //Displays options and gets player input
+            Console.WriteLine(description);
+            Console.WriteLine("1. " + optionOne);
+            Console.WriteLine("2. " + optionTwo);
+            Console.Write("\n> ");
+            string input = Console.ReadLine();
+            int choice = 0;
+
+            //Returns either 1 or 2 depending on users input
+            if (input == "1")
+                choice = 1;
+
+            else if (input == "2")
+                choice = 2;
+
+            //Called if player gives invalid input
+            else 
+            {
+                Console.WriteLine("Invalid input!");
+                //Only called in the player added the optional argument
+                if (pauseInvalid)
+                {
+                    Console.ReadKey(true);
+                    Console.Clear();
+                }
+            }
+           
+            return choice;
+        }
+
+        /// <summary>
+        /// Initializes monsters and sets current monsters
+        /// </summary>
         void Start()
         {
             //Initializes monsters
@@ -71,19 +116,24 @@ namespace Fight_Simulation
             unclePhil.defense = 20.0f;
             unclePhil.health = 50.0f;
 
+            ResetCurrentMonsters();
+        }
+
+        void ResetCurrentMonsters()
+        {
+
+            currentMonsterIndex = 0;
             //Sets current monsters
             currentMonsterOne = GetMonster(currentMonsterIndex);
             currentMonsterIndex++;
             currentMonsterTwo = GetMonster(currentMonsterIndex);
         }
 
-        public void Run()
-        {
-            Start();
-            while (!gameOver)
-                Update();
-        }
-
+        /// <summary>
+        /// Gets the current monster to be used in battle
+        /// </summary>
+        /// <param name="monsterIndex"></param>
+        /// <returns></returns>
         Monster GetMonster(int monsterIndex)
         {
             Monster monster;
@@ -92,23 +142,87 @@ namespace Fight_Simulation
             monster.defense = 1;
             monster.health = 1;
 
-            if (monsterIndex == 1)
-                monster = unclePhil;
-            else if (monsterIndex == 2)
-                monster = backupWompus;
-            else if (monsterIndex == 3)
-                monster = wompus;
-            else if (monsterIndex == 4)
-                monster = thwompus;
+            switch (monsterIndex)
+            {
+                case 0:
+                    monster = unclePhil;
+                    break;
+                case 1:
+                    
+                    monster = backupWompus;
+                    break;
+                case 2:
+                    monster = wompus;
+                    break;
+                case 3:
+                    monster = thwompus;
+                    break;
+            }
 
             return monster;
         }
 
+        /// <summary>
+        /// Updates current scene that is displayed in main update loop
+        /// </summary>
+        void UpdateCurrentScene()
+        {
+
+            switch (currentScene)
+            {
+                case 0:
+                    DisplayStartMenu();
+                    break;
+                case 1:
+                    StartBattle(currentMonsterOne, ref currentMonsterTwo);
+                    UpdateCurrentMonsters();
+                    break;
+                case 2:
+                    DisplayRestartMenu();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Displays start menu that allows player to start the game, or leave
+        /// </summary>
+        void DisplayStartMenu()
+        {
+            int choice = GetInput("Welcome to Monster Fight Simulator, featuring Uncle Phil!", "Start Simulation", "Quit Application", true);
+
+            if (choice == 1)
+                currentScene = 1;
+
+            else if (choice == 2)
+                gameOver = true;
+        }
+
+        /// <summary>
+        /// Displays restart menu that allows player to restart the game, or leave
+        /// </summary>
+        void DisplayRestartMenu()
+        {
+            //Gets player input
+            int choice = GetInput("The simulation is over. Would you like to play again?", "Yes", "No", true);
+
+            //If choice is one, restart game
+            if (choice == 1)
+            {
+                ResetCurrentMonsters();
+                currentScene = 0;
+            }
+
+            //If choice is two, end application
+            if (choice == 2)
+                gameOver = true;
+        }
+
+        /// <summary>
+        /// Called every game loop until the game is over
+        /// </summary>
         void Update()
         {
-            Battle();
-            UpdateCurrentMonsters();
-            Console.ReadKey(true);
+            UpdateCurrentScene();
         }
 
         /// <summary>
@@ -134,13 +248,12 @@ namespace Fight_Simulation
             //if the monster is set to the default monster, or the monster roster is empy...
             if (currentMonsterTwo.name == "None" || currentMonsterOne.name == "None" && currentMonsterIndex >= 4)
             {
-                //..Then make the game over
-                Console.WriteLine("Simulation Over");
-                gameOver = true;
+                //..Then go to the restart menu
+                currentScene = 2;
             }    
         }
 
-        string StartBattle(ref Monster monsterOne, ref Monster monsterTwo)
+        string StartBattle(Monster monsterOne, ref Monster monsterTwo)
         {
             string battleResults = "No Contest";
 
@@ -209,5 +322,13 @@ namespace Fight_Simulation
             }
             return damage;
         }
+
+        public void Run()
+        {
+            Start();
+            while (!gameOver)
+                Update();
+        }
+
     }
 }
