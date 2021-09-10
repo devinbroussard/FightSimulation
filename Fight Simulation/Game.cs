@@ -20,6 +20,7 @@ namespace Fight_Simulation
         public Monster thwompus;
         public Monster backupWompus;
         public Monster unclePhil;
+        Monster[] monsters;
 
         //Initializing
         bool gameOver = false;
@@ -27,7 +28,6 @@ namespace Fight_Simulation
         Monster currentMonsterTwo;
         int currentMonsterIndex = 0;
         int currentScene = 0;
-        Monster[] monsters;
 
         /// <summary>
         /// Function that gets and returns user data
@@ -95,11 +95,14 @@ namespace Fight_Simulation
             unclePhil.defense = 20.0f;
             unclePhil.health = 50.0f;
 
-            monsters = new Monster[4] { wompus, thwompus, backupWompus, unclePhil };
+            monsters = new Monster[] { wompus, thwompus, backupWompus, unclePhil };
 
             ResetCurrentMonsters();
         }
 
+        /// <summary>
+        /// Resets the current fighters to be the first two monsters in the array.
+        /// </summary>
         void ResetCurrentMonsters()
         {
 
@@ -184,27 +187,48 @@ namespace Fight_Simulation
         /// Ends the game if all figthters in the list have been used.
         /// </summary>
         void UpdateCurrentMonsters()
+        
         {
-            //If monsters one dies...
-            if (currentMonsterOne.health <= 0)
-            {
-                //...sets current monsterOne to next one in roster
-                currentMonsterIndex++;
-                currentMonsterOne = monsters[currentMonsterIndex];
-            }
-            //If monster two dies...
-            if (currentMonsterTwo.health <= 0)
-            {
-                //..sets current monsterTwo to the next monster in roster
-                currentMonsterIndex++;
-                currentMonsterTwo = monsters[currentMonsterIndex];
-            }
-            //if the monster is set to the default monster, or the monster roster is empy...
-            if (currentMonsterTwo.name == "None" || currentMonsterOne.name == "None" && currentMonsterIndex >= 4)
+            //if the monster is set to the default monster, or the monster roster is empty..
+            if (currentMonsterIndex >= monsters.Length)
             {
                 //..Then go to the restart menu
                 currentScene = 2;
-            }    
+            }
+
+            //If monsters one dies...
+            if (currentMonsterOne.health <= 0)
+            {
+                currentMonsterIndex++;
+
+                //...sets current monsterOne to next one in roster
+                if (TryEndSimulation())
+                    return;
+
+                currentMonsterOne = monsters[currentMonsterIndex];
+            }
+
+            //If monster two dies...
+            if (currentMonsterTwo.health <= 0)
+            {
+                currentMonsterIndex++;
+
+                //...sets current monsterOne to next one in roster
+                if (TryEndSimulation())
+                    return;
+
+                currentMonsterTwo = monsters[currentMonsterIndex];
+            } 
+        }
+
+        bool TryEndSimulation()
+        {
+            bool simulationOver = currentMonsterIndex >= monsters.Length;
+
+            if (simulationOver)
+                currentScene = 2;
+
+            return simulationOver;
         }
 
         string StartBattle(ref Monster monsterOne, ref Monster monsterTwo)
@@ -264,16 +288,6 @@ namespace Fight_Simulation
             Console.WriteLine();
         }
 
-        float CalculateDamage(float attack, float defense)
-        {
-            float damage = attack - defense;
-            if (damage <= 0)
-            {
-                damage = 0;
-            }
-            return damage;
-        }
-
         float CalculateDamage(Monster attacker, Monster defender)
         {
             float damage = attacker.attack - defender.defense;
@@ -293,52 +307,5 @@ namespace Fight_Simulation
 
             End();
         }
-       
-        //Using For
-        void GetArray(params int[] numbers)
-        {
-            int minNumber = numbers[0];
-            int maxNumber = numbers[0];
-
-            for (int i = 0; i < numbers.Length; i++)
-            {
-                if (minNumber > numbers[i])
-                    minNumber = numbers[i];
-                else if (maxNumber < numbers[i])
-                    maxNumber = numbers[i];
-            }
-
-            Console.WriteLine("Max: " + maxNumber);
-            Console.WriteLine("Min: " + minNumber);
-            Console.ReadKey();
-        }
-
-        //Using ForEach
-        void GetArrayInts (int[] numbers)
-        {
-            int minNumber = numbers[0];
-            int maxNumber = numbers[0];
-
-            foreach (int number in numbers)
-            {
-                if (minNumber > number)
-                    minNumber = number;
-                else if (maxNumber < number)
-                    maxNumber = number;
-            }
-
-            Console.WriteLine("Max: " + maxNumber);
-            Console.WriteLine("Min: " + minNumber);
-        }
-
-        //int[] oneToFive = new int[5] { 1, 2, 3, 4, 5 };
-
-        //void PrintNumbers(int[] arrayUsed)
-        //{
-        //    for (int number = 0; number < arrayUsed.Length; number++)
-        //    {
-        //        Console.WriteLine(arrayUsed[number]);
-        //    }
-        //}
     }
 }
