@@ -121,7 +121,9 @@ namespace Fight_Simulation
                     DisplayStartMenu();
                     break;
                 case 1:
-                    StartBattle(ref currentMonsterOne, ref currentMonsterTwo);
+                    string winner = StartBattle(ref currentMonsterOne, ref currentMonsterTwo);
+                    Console.WriteLine("Winner: " + winner);
+                    Console.ReadKey(true);
                     UpdateCurrentMonsters();
                     break;
                 case 2:
@@ -211,6 +213,7 @@ namespace Fight_Simulation
 
             while (monsterOne.health > 0 && monsterTwo.health > 0)
             {
+                Console.Clear();
                 //prints stats
                 PrintStats(monsterOne);
                 PrintStats(monsterTwo);
@@ -224,6 +227,12 @@ namespace Fight_Simulation
                 damageTaken = Fight(monsterTwo, ref monsterOne);
                 Console.Write(monsterOne.name + " has taken " + damageTaken);
                 Console.WriteLine(" damage!\n");
+
+                if (monsterOne.health < 0) monsterOne.health = 0;
+                if (monsterTwo.health < 0) monsterTwo.health = 0;
+
+                Console.WriteLine($"{monsterOne.name}'s health: {monsterOne.health}");
+                Console.WriteLine($"{monsterTwo.name}'s health: {monsterTwo.health}");
                 Console.ReadKey(true);
                 Console.Clear();
             }
@@ -277,8 +286,6 @@ namespace Fight_Simulation
 
         public void Run()
         {
-            GetArrayInts(4, 2, 3, 4);
-            Console.ReadKey();
             Start();
 
             while (!gameOver)
@@ -297,7 +304,7 @@ namespace Fight_Simulation
             {
                 if (minNumber > numbers[i])
                     minNumber = numbers[i];
-                if (maxNumber < numbers[i])
+                else if (maxNumber < numbers[i])
                     maxNumber = numbers[i];
             }
 
@@ -307,7 +314,7 @@ namespace Fight_Simulation
         }
 
         //Using ForEach
-        void GetArrayInts(params int[] numbers)
+        void GetArrayInts (int[] numbers)
         {
             int minNumber = numbers[0];
             int maxNumber = numbers[0];
@@ -316,7 +323,7 @@ namespace Fight_Simulation
             {
                 if (minNumber > number)
                     minNumber = number;
-                if (maxNumber < number)
+                else if (maxNumber < number)
                     maxNumber = number;
             }
 
